@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Kotlin learning</string>
+    <string name="username_hint">Почта</string>
+    <string name="password_hint">Пароль</string>
+    <string name="login_button_label">Войти</string>
+    <string name="logo_description">Изучаем kotlin вместе</string>
+    <string name="ManualCourseInfoText">
+        Курс \"Ручное тестирование\""
+
+        Привет! Этот курс предназначен для тех, кто хочет научиться основам ручного тестирования
+        и развить свои навыки в этой области. Мы рассмотрим основные принципы тестирования,
+        методы и техники, а также лучшие практики при выполнении тестовых заданий.
+        Надеемся, что этот курс поможет вам стать успешным тестировщиком!
+    </string>
+    <string name="ManualCourseNewsText">Новости об обновлении курса</string>
+    <string name="ManualCourseReviewsText">Отзывы о курсе</string>
+</resources>

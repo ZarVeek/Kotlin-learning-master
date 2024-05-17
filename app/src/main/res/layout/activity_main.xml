@@ -1,0 +1,78 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <!-- Картинка -->
+
+
+    <!-- Кнопки "Практика", "Теория", "Мои достижения" -->
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:layout_marginTop="-200dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_login_logo" /> />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:text="Главная страница"
+        android:textSize="24sp" />
+
+
+    <!-- Ползунки с прогрессом -->
+
+
+    <Button
+        android:id="@+id/practiceButton"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        android:text="Практика" />
+
+    <SeekBar
+        android:id="@+id/practiceSeekBar"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="-5dp" />
+
+    <Button
+        android:id="@+id/theoryButton"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="Теория" />
+
+    <SeekBar
+        android:id="@+id/theorySeekBar"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-5dp" />
+
+    <Button
+        android:id="@+id/achievementsButton"
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:text="Мои достижения" />
+
+    <SeekBar
+        android:id="@+id/achievementSeekBar"
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-5dp" />
+
+    <Button
+        android:id="@+id/loginOutButton"
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Выйти" />
+
+</LinearLayout>
