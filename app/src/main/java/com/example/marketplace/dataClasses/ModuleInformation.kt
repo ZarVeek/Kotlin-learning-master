@@ -4,12 +4,12 @@ data class ModuleInformation(
     val modules: List<ModuleData> = listOf(
         ModuleData(
             1,
-            "Введение1",
-            "естественный язык и текст0",
+            "Оценка тестирования задач",
+            "В данном блоке Вы познакомитесь с методами оценки задач и узнаете, на что необходимо закладывать время при оценивании. Узнаете правила работы со сроками, дедлайнами и оценками.",
             20,
             1,
             steps = listOf(
-                StepData(1, "Description 1"),
+                StepData(1, "ManualTestingModule1Step1.pdf"),
                 StepData(2, "Description 2"),
                 StepData(3, "Description 3"),
                 StepData(4, "Description 4"),
