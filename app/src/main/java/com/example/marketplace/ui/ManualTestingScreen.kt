@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
@@ -25,11 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getString
 import com.example.marketplace.R
 import com.example.marketplace.dataClasses.ModuleData
 import com.example.marketplace.dataClasses.ModuleInformation
-import com.example.marketplace.dataClasses.StepData
 
 @Composable
 fun ManualTestingScreen(
@@ -74,36 +72,17 @@ fun ManualTestingScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-
-        ) {
-            Button(
-                onClick = onInfoClicked
-            ) {
-                Text("Инфо")
+        ScrollableButtonsRow(
+            buttons = listOf("Инфо", "Модули", "Новости", "Отзывы"),
+            onItemClick = { action ->
+                when (action) {
+                    "Инфо" -> onInfoClicked()
+                    "Модули" -> onModulesClicked()
+                    "Новости" -> onNewsClicked()
+                    "Отзывы" -> onReviewsClicked()
+                }
             }
-
-            Button(
-                onClick = onModulesClicked
-            ) {
-                Text("Модули")
-            }
-
-            Button(
-                onClick = onNewsClicked
-            ) {
-                Text("Новости")
-            }
-
-            Button(
-                onClick = onReviewsClicked
-            ) {
-                Text("Отзывы")
-            }
-        }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -175,5 +154,24 @@ fun ModuleItem(module: ModuleData, onModuleClicked: (ModuleData) -> Unit) {
             "Баллы: ${module.userProgressStep} / ${module.maxSteps}",
             style = MaterialTheme.typography.body2
         )
+    }
+}
+
+@Composable
+fun ScrollableButtonsRow(
+    modifier: Modifier = Modifier,
+    buttons: List<String>,
+    onItemClick: (String) -> Unit
+) {
+    LazyRow(
+        modifier = modifier
+    ) {
+        items(buttons) { text ->
+            Button(
+                onClick = { onItemClick(text) },
+            ) {
+                Text(text)
+            }
+        }
     }
 }
