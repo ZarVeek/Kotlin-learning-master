@@ -1,6 +1,7 @@
 package com.example.marketplace.Module
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,11 +38,16 @@ import com.example.marketplace.dataClasses.StepData
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.pdf.PdfRenderer
+import android.net.Uri
 import android.os.ParcelFileDescriptor
+import android.widget.VideoView
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.viewinterop.AndroidView
+import com.example.marketplace.FullScreenVideoActivity
 import java.io.File
 
 @Composable
@@ -51,45 +57,13 @@ fun ModuleDetailScreen(module: ModuleData?, onBackClick: () -> Unit) {
         val context = LocalContext.current
 
         Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = Color(0xFFBEBEBE))
-                    .padding(16.dp)
-            ) {
-                IconButton(onClick = onBackClick) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_back_arrow),
-                        contentDescription = "Back",
-                        modifier = Modifier.size(48.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = "${module.id}. ${module.title}",
-                    style = MaterialTheme.typography.h6
-                )
-            }
+            TopMenuBar(module.title, onBackClick)
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                it.steps.forEachIndexed { index, step ->
-                    val isStepSelected = index == currentStepIndex
-                    Text(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = 8.dp)
-                            .clickable { currentStepIndex = index },
-                        text = step.id.toString(),
-                        style = MaterialTheme.typography.body2.copy(
-                            fontWeight = if (isStepSelected) FontWeight.Bold else FontWeight.Normal
-                        )
-                    )
-                }
-            }
+            StepNavigationRow(
+                steps = it.steps,
+                currentStepIndex = currentStepIndex,
+                onStepClick = { index -> currentStepIndex = index }
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -98,68 +72,86 @@ fun ModuleDetailScreen(module: ModuleData?, onBackClick: () -> Unit) {
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                val content = it.steps[currentStepIndex].content
-                if (content.endsWith(".pdf")) {
-                    PdfViewer(context, content, 1.5f)
-                } else {
-                    Text(content)
+                val step = it.steps[currentStepIndex]
+                when {
+                    step.question == "1" -> QuizScreen(step)
+                    step.content.endsWith(".pdf") -> PdfViewer(context, step.content, 2f)
+                    step.video == "1" -> VideoPlayer(context, "tasktestingassessment")
+                    else -> Text(step.content)
                 }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Button(
-                    onClick = {
-                        if (currentStepIndex < module.steps.size - 1) {
-                            currentStepIndex += 1
-                        }
+            NavigationButtons(
+                onNextClick = {
+                    if (currentStepIndex < module.steps.size - 1) {
+                        currentStepIndex += 1
                     }
-                ) {
-                    Text("Дальше")
                 }
-            }
+            )
         }
     }
 }
 
 @Composable
-fun TextStep(step: StepData, onNextClick: () -> Unit) {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(step.content, style = MaterialTheme.typography.body1)
-        Button(onClick = onNextClick) {
-            Text("Дальше")
+fun TopMenuBar(title: String, onBackClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = Color(0xFFBEBEBE))
+            .padding(16.dp)
+    ) {
+        IconButton(onClick = onBackClick) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_back_arrow),
+                contentDescription = "Back",
+                modifier = Modifier.size(48.dp)
+            )
         }
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.h6
+        )
     }
 }
 
 @Composable
-fun QuizStep(step: StepData, onAnswer: (Boolean) -> Unit) {
-    var selectedOptionIndex by remember { mutableStateOf<Int?>(null) }
-
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(step.question!!, style = MaterialTheme.typography.body1)
-        step.options!!.forEachIndexed { index, option ->
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .clickable { selectedOptionIndex = index }) {
-                RadioButton(
-                    selected = selectedOptionIndex == index,
-                    onClick = { selectedOptionIndex = index }
+fun StepNavigationRow(steps: List<StepData>, currentStepIndex: Int, onStepClick: (Int) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        steps.forEachIndexed { index, step ->
+            val isStepSelected = index == currentStepIndex
+            Text(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
+                    .clickable { onStepClick(index) },
+                text = step.id.toString(),
+                style = MaterialTheme.typography.body2.copy(
+                    fontWeight = if (isStepSelected) FontWeight.Bold else FontWeight.Normal
                 )
-                Text(option, style = MaterialTheme.typography.body1)
-            }
+            )
         }
-        Button(onClick = {
-            onAnswer(selectedOptionIndex == step.correctAnswerIndex)
-        }) {
-            Text("Проверить")
+    }
+}
+
+@Composable
+fun NavigationButtons(onNextClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.End
+    ) {
+        Button(
+            onClick = onNextClick
+        ) {
+            Text("Дальше")
         }
     }
 }
@@ -206,6 +198,51 @@ fun PdfViewer(context: Context, fileName: String, scaleFactor: Float) {
             }
         } ?: run {
             Text(text = "PDF file not found", color = Color.Red, style = MaterialTheme.typography.h6)
+        }
+    }
+}
+
+@Composable
+fun VideoPlayer(context: Context, videoName: String) {
+    val videoUri = Uri.fromFile(File("C:/Users/zarve/AndroidStudioProjects/Kotlin-learning-master/app/src/main/res/video/Task_testing_assessment.mp4"))
+    val videoView = remember { VideoView(context) }
+    var isPlaying by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        AndroidView(factory = {
+            videoView.apply {
+                setVideoURI(videoUri)
+            }
+        }, modifier = Modifier.fillMaxWidth())
+
+        if (!isPlaying) {
+            Button(
+                onClick = {
+                    videoView.start()
+                    isPlaying = true
+                },
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(16.dp)
+            ) {
+                Text("Начать воспроизведение")
+            }
+        }
+
+        Button(
+            onClick = {
+                val intent = Intent(context, FullScreenVideoActivity::class.java)
+                intent.putExtra("video_uri", videoUri.toString())
+                context.startActivity(intent)
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Text("Полноэкранный режим")
         }
     }
 }

@@ -19,11 +19,11 @@ class ManualTestingActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
+                var selectedAction by remember { mutableStateOf("Инфо") }
+
                 val onBackArrowClicked = {
                     startActivity(Intent(this, MainActivity::class.java))
                 }
-
-                var selectedAction by remember { mutableStateOf("Инфо") }
 
                 val onModuleClicked: (ModuleData) -> Unit = { module ->
                     // Обработка нажатия на модуль

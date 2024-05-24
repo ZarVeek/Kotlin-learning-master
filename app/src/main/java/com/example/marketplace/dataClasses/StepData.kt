@@ -6,6 +6,7 @@ data class StepData(
     val id: Int,
     val content: String,
     val question: String? = null,
+    val video: String? = null,
     val options: List<String>? = null,
     val correctAnswerIndex: Int? = null
 ) : Serializable

@@ -10,8 +10,8 @@ data class ModuleInformation(
             1,
             steps = listOf(
                 StepData(1, "ManualTestingModule1Step1.pdf"),
-                StepData(2, "Description 2"),
-                StepData(3, "Description 3"),
+                StepData(2, "Description 2", "1"),
+                StepData(3, "tasktestingassessment.mp4",null,"1"),
                 StepData(4, "Description 4"),
                 StepData(5, "Description 5"),
                 StepData(6, "Description 6"),
