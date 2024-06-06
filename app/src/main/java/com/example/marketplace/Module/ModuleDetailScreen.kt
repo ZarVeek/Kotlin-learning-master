@@ -20,7 +20,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,7 +37,6 @@ import com.example.marketplace.dataClasses.StepData
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.pdf.PdfRenderer
-import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.widget.VideoView
 import androidx.compose.foundation.layout.height
@@ -65,7 +63,7 @@ fun ModuleDetailScreen(module: ModuleData?, onBackClick: () -> Unit) {
                 onStepClick = { index -> currentStepIndex = index }
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Box(
                 modifier = Modifier
@@ -76,12 +74,12 @@ fun ModuleDetailScreen(module: ModuleData?, onBackClick: () -> Unit) {
                 when {
                     step.question == "1" -> QuizScreen(step)
                     step.content.endsWith(".pdf") -> PdfViewer(context, step.content, 2f)
-                    step.video == "1" -> VideoPlayer(context, "tasktestingassessment")
+                    step.video == "1" -> VideoPlayer(context, step.content)
                     else -> Text(step.content)
                 }
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             NavigationButtons(
                 onNextClick = {
@@ -148,9 +146,7 @@ fun NavigationButtons(onNextClick: () -> Unit) {
             .padding(16.dp),
         horizontalArrangement = Arrangement.End
     ) {
-        Button(
-            onClick = onNextClick
-        ) {
+        Button(onClick = onNextClick) {
             Text("Дальше")
         }
     }
@@ -174,9 +170,7 @@ fun PdfViewer(context: Context, fileName: String, scaleFactor: Float) {
                     (page.height * scaleFactor).toInt(),
                     Bitmap.Config.ARGB_8888
                 )
-                val matrix = Matrix().apply {
-                    setScale(scaleFactor, scaleFactor)
-                }
+                val matrix = Matrix().apply { setScale(scaleFactor, scaleFactor) }
                 page.render(bitmap, null, matrix, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 pageBitmaps.add(bitmap)
                 page.close()
@@ -204,26 +198,37 @@ fun PdfViewer(context: Context, fileName: String, scaleFactor: Float) {
 
 @Composable
 fun VideoPlayer(context: Context, videoName: String) {
-    val videoUri = Uri.fromFile(File("C:/Users/zarve/AndroidStudioProjects/Kotlin-learning-master/app/src/main/res/video/Task_testing_assessment.mp4"))
     val videoView = remember { VideoView(context) }
     var isPlaying by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
         AndroidView(factory = {
             videoView.apply {
-                setVideoURI(videoUri)
+                val assetFileDescriptor = context.assets.openFd(videoName)
+                val inputStream = assetFileDescriptor.createInputStream()
+                val tempFile = File.createTempFile("video", null, context.cacheDir)
+                val outputStream = tempFile.outputStream()
+                inputStream.copyTo(outputStream)
+                inputStream.close()
+                outputStream.close()
+                setVideoPath(tempFile.absolutePath)
+                setOnPreparedListener { mp ->
+                    mp.setOnVideoSizeChangedListener { _, _, _ ->
+                        mp.start()
+                        isPlaying = true
+                    }
+                }
             }
         }, modifier = Modifier.fillMaxWidth())
 
         if (!isPlaying) {
             Button(
-                onClick = {
-                    videoView.start()
-                    isPlaying = true
-                },
+                onClick = { videoView.start() },
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(16.dp)
@@ -235,7 +240,7 @@ fun VideoPlayer(context: Context, videoName: String) {
         Button(
             onClick = {
                 val intent = Intent(context, FullScreenVideoActivity::class.java)
-                intent.putExtra("video_uri", videoUri.toString())
+                intent.putExtra("video_name", videoName)
                 context.startActivity(intent)
             },
             modifier = Modifier
@@ -258,9 +263,7 @@ private fun loadPdfFromAssets(context: Context, fileName: String): PdfRenderer? 
         }
 
         val parcelFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
-        val pdfRenderer = PdfRenderer(parcelFileDescriptor)
-
-        return pdfRenderer
+        PdfRenderer(parcelFileDescriptor)
     } catch (e: Exception) {
         e.printStackTrace()
         null

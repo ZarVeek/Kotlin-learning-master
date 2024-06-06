@@ -1,6 +1,5 @@
 package com.example.marketplace.ui
 
-import android.net.Uri
 import android.widget.VideoView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,15 +8,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import java.io.File
 
 @Composable
-fun FullScreenVideoScreen(videoUri: String) {
+fun FullScreenVideoScreen(videoName: String) {
     val context = LocalContext.current
-    val uri = Uri.parse(videoUri)
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         AndroidView(factory = {
             VideoView(context).apply {
-                setVideoURI(uri)
+                val assetFileDescriptor = context.assets.openFd(videoName)
+                val inputStream = assetFileDescriptor.createInputStream()
+                val tempFile = File.createTempFile("video", null, context.cacheDir)
+                val outputStream = tempFile.outputStream()
+                inputStream.copyTo(outputStream)
+                inputStream.close()
+                outputStream.close()
+                setVideoPath(tempFile.absolutePath)
                 start()
             }
         }, modifier = Modifier.fillMaxSize())

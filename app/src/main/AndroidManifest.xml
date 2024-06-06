@@ -30,7 +30,7 @@
         <activity android:name=".AutomationFrontEndActivity" />
         <activity android:name=".AutomationAndroidActivity" />
         <activity android:name=".Module.ModuleDetailActivity" />
-
+        <activity android:name=".FullScreenVideoActivity" />
     </application>
 
 </manifest>
