@@ -42,6 +42,7 @@ import android.widget.VideoView
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.viewinterop.AndroidView
@@ -73,7 +74,7 @@ fun ModuleDetailScreen(module: ModuleData?, onBackClick: () -> Unit) {
                 val step = it.steps[currentStepIndex]
                 when {
                     step.question == "1" -> QuizScreen(step)
-                    step.content.endsWith(".pdf") -> PdfViewer(context, step.content, 2f)
+                    step.content.endsWith(".pdf") -> PdfViewer(context, step.content, 3f, currentStepIndex)
                     step.video == "1" -> VideoPlayer(context, step.content)
                     else -> Text(step.content)
                 }
@@ -153,8 +154,8 @@ fun NavigationButtons(onNextClick: () -> Unit) {
 }
 
 @Composable
-fun PdfViewer(context: Context, fileName: String, scaleFactor: Float) {
-    val pdfRenderer = remember { loadPdfFromAssets(context, fileName) }
+fun PdfViewer(context: Context, fileName: String, scaleFactor: Float, currentStepIndex: Int) {
+    var pdfRenderer by remember(currentStepIndex) { mutableStateOf(loadPdfFromAssets(context, fileName)) }
 
     Box(
         modifier = Modifier
@@ -162,7 +163,7 @@ fun PdfViewer(context: Context, fileName: String, scaleFactor: Float) {
             .padding(16.dp)
     ) {
         pdfRenderer?.let { renderer ->
-            val pageBitmaps = remember { mutableStateListOf<Bitmap>() }
+            val pageBitmaps = remember(currentStepIndex) { mutableStateListOf<Bitmap>() }
             for (i in 0 until renderer.pageCount) {
                 val page = renderer.openPage(i)
                 val bitmap = Bitmap.createBitmap(
@@ -223,17 +224,37 @@ fun VideoPlayer(context: Context, videoName: String) {
                         isPlaying = true
                     }
                 }
+                setOnCompletionListener {
+                    isPlaying = false
+                }
             }
         }, modifier = Modifier.fillMaxWidth())
 
         if (!isPlaying) {
             Button(
-                onClick = { videoView.start() },
+                onClick = {
+                    videoView.start()
+                    isPlaying = true
+                },
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(16.dp)
+                    .alpha(0f) // Make the button invisible
             ) {
                 Text("Начать воспроизведение")
+            }
+        } else {
+            Button(
+                onClick = {
+                    videoView.pause()
+                    isPlaying = false
+                },
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(16.dp)
+                    .alpha(0f) // Make the button invisible
+            ) {
+                Text("Пауза")
             }
         }
 

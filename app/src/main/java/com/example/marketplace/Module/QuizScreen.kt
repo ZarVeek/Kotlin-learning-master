@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
@@ -23,6 +24,8 @@ import com.example.marketplace.dataClasses.StepData
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -34,35 +37,47 @@ fun QuizScreen(step: StepData) {
     var isAnswerChecked by remember { mutableStateOf(false) }
     var isAnswerCorrect by remember { mutableStateOf(false) }
 
-    val correctAnswer = "2"
-    val options = listOf("2", "4", "1", "3")
+    val correctAnswer = step.correctAnswer
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    val options: List<String> = step.options ?: emptyList()
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize()
+    ) {
         Text(text = step.content, style = MaterialTheme.typography.h6)
         Spacer(modifier = Modifier.height(8.dp))
 
-        options.forEach { option ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { selectedOption = option }
-                    .padding(vertical = 4.dp)
-            ) {
-                RadioButton(
-                    selected = selectedOption == option,
-                    onClick = { selectedOption = option }
-                )
-                Text(text = option)
+        LazyColumn(
+            modifier = Modifier.weight(1f, fill = false)
+        ) {
+            items(options) { option ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { selectedOption = option }
+                        .padding(vertical = 4.dp)
+                ) {
+                    RadioButton(
+                        selected = selectedOption == option,
+                        onClick = { selectedOption = option }
+                    )
+                    Text(text = option)
+                }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = {
-            isAnswerChecked = true
-            isAnswerCorrect = selectedOption == correctAnswer
-        }) {
+        Button(
+            onClick = {
+                isAnswerChecked = true
+                isAnswerCorrect = selectedOption == correctAnswer
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
             Text("Отправить")
         }
 
