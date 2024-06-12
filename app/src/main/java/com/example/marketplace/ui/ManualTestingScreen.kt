@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.example.marketplace.R
 import com.example.marketplace.dataClasses.ModuleData
 import com.example.marketplace.dataClasses.ModuleInformation
+import com.example.marketplace.model.Review
 
 @Composable
 fun ManualTestingScreen(
@@ -49,7 +50,7 @@ fun ManualTestingScreen(
     onModuleClicked: (ModuleData) -> Unit,
     infoText: String,
     newsText: String,
-    reviews: List<String>,
+    reviews: List<Review>,
     newReview: TextFieldValue,
     onNewReviewChanged: (TextFieldValue) -> Unit,
     onSendReviewClicked: (String) -> Unit
@@ -151,7 +152,7 @@ fun ManualTestingScreen(
 
 @Composable
 fun ReviewsSection(
-    reviews: List<String>,
+    reviews: List<Review>,
     newReview: TextFieldValue,
     onNewReviewChanged: (TextFieldValue) -> Unit,
     onSendReviewClicked: (String) -> Unit
@@ -170,7 +171,7 @@ fun ReviewsSection(
         ) {
             items(reviews) { review ->
                 Text(
-                    text = review,
+                    text = review.content,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier
                         .padding(vertical = 8.dp)

@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -21,8 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.marketplace.R
+import com.example.marketplace.dataClasses.ModuleData
+import com.example.marketplace.dataClasses.ModuleInformation
+import com.example.marketplace.model.Review
 
 @Composable
 fun AutomationAPIScreen(
@@ -31,23 +37,15 @@ fun AutomationAPIScreen(
     onInfoClicked: () -> Unit,
     onModulesClicked: () -> Unit,
     onNewsClicked: () -> Unit,
-    onReviewsClicked: () -> Unit
+    onReviewsClicked: () -> Unit,
+    onModuleClicked: (ModuleData) -> Unit,
+    infoText: String,
+    newsText: String,
+    reviews: List<Review>,
+    newReview: TextFieldValue,
+    onNewReviewChanged: (TextFieldValue) -> Unit,
+    onSendReviewClicked: (String) -> Unit
 ) {
-
-    var courseInfoText = """
-        Курс "Автоматизации API"
-        
-        Привет! Этот курс предназначен для тех, кто хочет научиться основам ручного тестирования 
-        и развить свои навыки в этой области. Мы рассмотрим основные принципы тестирования,
-        методы и техники, а также лучшие практики при выполнении тестовых заданий.
-        
-        Надеемся, что этот курс поможет вам стать успешным тестировщиком!
-    """.trimIndent()
-
-    var modulesText = "Список модулей курса"
-    var newsText = "Новости об обновлении курса"
-    var reviewsText = "Отзывы о курсе"
-
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top
@@ -80,36 +78,17 @@ fun AutomationAPIScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-
-        ) {
-            Button(
-                onClick = onInfoClicked
-            ) {
-                Text("Инфо")
+        ScrollableButtonsRow(
+            buttons = listOf("Инфо", "Модули", "Новости", "Отзывы"),
+            onItemClick = { action ->
+                when (action) {
+                    "Инфо" -> onInfoClicked()
+                    "Модули" -> onModulesClicked()
+                    "Новости" -> onNewsClicked()
+                    "Отзывы" -> onReviewsClicked()
+                }
             }
-
-            Button(
-                onClick = onModulesClicked
-            ) {
-                Text("Модули")
-            }
-
-            Button(
-                onClick = onNewsClicked
-            ) {
-                Text("Новости")
-            }
-
-            Button(
-                onClick = onReviewsClicked
-            ) {
-                Text("Отзывы")
-            }
-        }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -121,18 +100,21 @@ fun AutomationAPIScreen(
                         .background(color = MaterialTheme.colors.onBackground.copy(alpha = 0.1f))
                         .padding(16.dp)
                 ) {
-                    Text(courseInfoText)
+                    Text(infoText)
                 }
             }
 
             "Модули" -> {
-                Box(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(color = MaterialTheme.colors.onBackground.copy(alpha = 0.1f))
                         .padding(16.dp)
                 ) {
-                    Text(modulesText)
+                    items(ModuleInformation().modules) { module ->
+                        ModuleItem(module, onModuleClicked)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
             }
 
@@ -148,14 +130,12 @@ fun AutomationAPIScreen(
             }
 
             "Отзывы" -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = MaterialTheme.colors.onBackground.copy(alpha = 0.1f))
-                        .padding(16.dp)
-                ) {
-                    Text(reviewsText)
-                }
+                ReviewsSection(
+                    reviews = reviews,
+                    newReview = newReview,
+                    onNewReviewChanged = onNewReviewChanged,
+                    onSendReviewClicked = onSendReviewClicked
+                )
             }
         }
     }

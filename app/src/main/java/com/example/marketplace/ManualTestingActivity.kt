@@ -1,6 +1,5 @@
 package com.example.marketplace
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +15,7 @@ import com.example.marketplace.api.RetrofitInstance
 import com.example.marketplace.dataClasses.ModuleData
 import com.example.marketplace.model.InfoResponse
 import com.example.marketplace.model.NewsResponse
+import com.example.marketplace.model.Review
 import com.example.marketplace.model.ReviewRequest
 import com.example.marketplace.model.ReviewResponse
 import com.example.marketplace.model.ReviewsResponse
@@ -25,7 +25,6 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class ManualTestingActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -34,7 +33,7 @@ class ManualTestingActivity : ComponentActivity() {
                 var selectedAction by remember { mutableStateOf("Инфо") }
                 var infoText by remember { mutableStateOf("") }
                 var newsText by remember { mutableStateOf("") }
-                var reviews by remember { mutableStateOf(listOf<String>()) }
+                var reviews by remember { mutableStateOf(listOf<Review>()) }
                 var newReview by remember { mutableStateOf(TextFieldValue("")) }
 
                 val onBackArrowClicked = {
@@ -47,7 +46,7 @@ class ManualTestingActivity : ComponentActivity() {
                     startActivity(intent)
                 }
 
-                fetchInfo { infoResponse ->
+                fetchInfo(1) { infoResponse ->
                     infoText = infoResponse.info
                 }
 
@@ -87,9 +86,9 @@ class ManualTestingActivity : ComponentActivity() {
         }
     }
 
-    private fun fetchInfo(onResult: (InfoResponse) -> Unit) {
+    private fun fetchInfo(infoId: Int, onResult: (InfoResponse) -> Unit) {
         val retrofitService = RetrofitInstance.getRetrofitInstance().create(ApiService::class.java)
-        val call = retrofitService.getInfo()
+        val call = retrofitService.getInfo(infoId)
 
         call.enqueue(object : Callback<InfoResponse> {
             override fun onResponse(call: Call<InfoResponse>, response: Response<InfoResponse>) {
