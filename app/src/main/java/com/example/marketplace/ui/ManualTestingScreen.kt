@@ -2,11 +2,13 @@ package com.example.marketplace.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,28 +18,25 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.marketplace.R
 import com.example.marketplace.dataClasses.ModuleData
 import com.example.marketplace.dataClasses.ModuleInformation
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 
 @Composable
 fun ManualTestingScreen(
@@ -47,7 +46,13 @@ fun ManualTestingScreen(
     onModulesClicked: () -> Unit,
     onNewsClicked: () -> Unit,
     onReviewsClicked: () -> Unit,
-    onModuleClicked: (ModuleData) -> Unit
+    onModuleClicked: (ModuleData) -> Unit,
+    infoText: String,
+    newsText: String,
+    reviews: List<String>,
+    newReview: TextFieldValue,
+    onNewReviewChanged: (TextFieldValue) -> Unit,
+    onSendReviewClicked: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -103,7 +108,7 @@ fun ManualTestingScreen(
                         .background(color = MaterialTheme.colors.onBackground.copy(alpha = 0.1f))
                         .padding(16.dp)
                 ) {
-                    Text(stringResource(id = R.string.ManualCourseInfoText))
+                    Text(infoText)
                 }
             }
 
@@ -128,22 +133,29 @@ fun ManualTestingScreen(
                         .background(color = MaterialTheme.colors.onBackground.copy(alpha = 0.1f))
                         .padding(16.dp)
                 ) {
-                    Text(stringResource(id = R.string.ManualCourseNewsText))
+                    Text(newsText)
                 }
             }
 
             "Отзывы" -> {
-                ReviewsSection()
+                ReviewsSection(
+                    reviews = reviews,
+                    newReview = newReview,
+                    onNewReviewChanged = onNewReviewChanged,
+                    onSendReviewClicked = onSendReviewClicked
+                )
             }
         }
     }
 }
 
 @Composable
-fun ReviewsSection() {
-    val reviews = remember { mutableStateListOf("Отличный курс!", "Очень полезная информация.") }
-    var newReview by remember { mutableStateOf("") }
-
+fun ReviewsSection(
+    reviews: List<String>,
+    newReview: TextFieldValue,
+    onNewReviewChanged: (TextFieldValue) -> Unit,
+    onSendReviewClicked: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -175,7 +187,7 @@ fun ReviewsSection() {
         ) {
             BasicTextField(
                 value = newReview,
-                onValueChange = { newReview = it },
+                onValueChange = onNewReviewChanged,
                 modifier = Modifier
                     .weight(1f)
                     .padding(8.dp)
@@ -185,12 +197,7 @@ fun ReviewsSection() {
             )
 
             Button(
-                onClick = {
-                    if (newReview.isNotBlank()) {
-                        reviews.add(newReview)
-                        newReview = ""
-                    }
-                },
+                onClick = { onSendReviewClicked(newReview.text) },
                 modifier = Modifier.padding(start = 8.dp)
             ) {
                 Text("Отправить")

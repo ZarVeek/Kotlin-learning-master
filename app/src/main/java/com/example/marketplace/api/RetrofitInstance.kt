@@ -12,7 +12,7 @@ import javax.net.ssl.X509TrustManager
 
 object RetrofitInstance {
 
-    private const val BASE_URL = "http://192.168.0.107:5000/"
+    private const val BASE_URL = "http://192.168.0.108:5000/"
 
     fun getRetrofitInstance(): Retrofit {
         val trustAllCerts: Array<TrustManager> = arrayOf(
