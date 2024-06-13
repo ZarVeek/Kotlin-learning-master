@@ -1,6 +1,6 @@
 package com.example.marketplace.dataClasses
 
-data class ModuleInformation(
+data class ModuleInformationManual(
     val modules: List<ModuleData> = listOf(
         ModuleData(
             1,
@@ -71,7 +71,7 @@ data class ModuleInformation(
                     ),
                     "Сроки и дедлайны должны быть реалистичными, основанными на анализе задач и ресурсов. Необходимо учитывать возможные риски и оставлять запас времени на непредвиденные обстоятельства."
                 ),
-                StepData(10, "tasktestingassessment.mp4",null,null,null,"1")
+                StepData(10, "tasktestingassessment.mp4",null,null,null, null,"1")
             )
         ),
         ModuleData(
@@ -145,7 +145,7 @@ data class ModuleInformation(
                     ),
                     "Сроки и дедлайны должны быть реалистичными, основанными на анализе задач и ресурсов. Необходимо учитывать возможные риски и оставлять запас времени на непредвиденные обстоятельства."
                 ),
-                StepData(10, "tasktestingassessment.mp4",null,null,null,"1")
+                StepData(10, "tasktestingassessment.mp4",null, null,null,null,"1")
             )
         ),
         ModuleData(

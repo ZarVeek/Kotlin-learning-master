@@ -13,6 +13,7 @@ import javax.net.ssl.X509TrustManager
 object RetrofitInstance {
 
     private const val BASE_URL = "http://192.168.0.108:5000/"
+    private const val JDoodle_BASE_URL = "https://api.jdoodle.com/v1/"
 
     fun getRetrofitInstance(): Retrofit {
         val trustAllCerts: Array<TrustManager> = arrayOf(
@@ -40,11 +41,37 @@ object RetrofitInstance {
         val client = OkHttpClient.Builder()
             .sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
             .addInterceptor(loggingInterceptor)
+            .hostnameVerifier { _, _ -> true }  // Позволяет всем hostname (не рекомендуется для production)
             .build()
 
-        // Создание экземпляра Retrofit
-        return Retrofit.Builder()
+        // Создание экземпляра Retrofit для основного сервера
+        val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+
+        // Создание экземпляра Retrofit для JDoodle API
+        val jdoodleRetrofit = Retrofit.Builder()
+            .baseUrl(JDoodle_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+
+        return retrofit
+    }
+
+    fun getJDoodleRetrofitInstance(): Retrofit {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
+        val client = OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(JDoodle_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()

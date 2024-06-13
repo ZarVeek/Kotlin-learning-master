@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,7 +25,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.marketplace.R
 import com.example.marketplace.dataClasses.ModuleData
-import com.example.marketplace.dataClasses.ModuleInformation
+import com.example.marketplace.dataClasses.ModuleInformationFrondEnd
+import com.example.marketplace.dataClasses.ModuleInformationManual
 import com.example.marketplace.model.Review
 
 @Composable
@@ -111,7 +110,7 @@ fun AutomationFrontEndScreen(
                         .background(color = MaterialTheme.colors.onBackground.copy(alpha = 0.1f))
                         .padding(16.dp)
                 ) {
-                    items(ModuleInformation().modules) { module ->
+                    items(ModuleInformationFrondEnd().modules) { module ->
                         ModuleItem(module, onModuleClicked)
                         Spacer(modifier = Modifier.height(8.dp))
                     }

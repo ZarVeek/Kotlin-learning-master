@@ -40,6 +40,7 @@ import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.widget.VideoView
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
@@ -47,13 +48,22 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.marketplace.FullScreenVideoActivity
+import com.example.marketplace.api.CompileRequest
+import com.example.marketplace.api.CompileResponse
+import com.example.marketplace.api.CompilerApiService
+import com.example.marketplace.api.RetrofitInstance
 import java.io.File
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun ModuleDetailScreen(module: ModuleData?, onBackClick: () -> Unit) {
     module?.let {
         var currentStepIndex by remember { mutableStateOf(0) }
         val context = LocalContext.current
+        var codeInput by remember { mutableStateOf("") }
+        var codeOutput by remember { mutableStateOf("") }
 
         Column(modifier = Modifier.fillMaxSize()) {
             TopMenuBar(module.title, onBackClick)
@@ -76,6 +86,7 @@ fun ModuleDetailScreen(module: ModuleData?, onBackClick: () -> Unit) {
                     step.question == "1" -> QuizScreen(step)
                     step.content.endsWith(".pdf") -> PdfViewer(context, step.content, 3f, currentStepIndex)
                     step.video == "1" -> VideoPlayer(context, step.content)
+                    step.code == "1" -> CodeCompilerScreen(step)
                     else -> Text(step.content)
                 }
             }
@@ -271,6 +282,65 @@ fun VideoPlayer(context: Context, videoName: String) {
             Text("Полноэкранный режим")
         }
     }
+}
+
+@Composable
+fun CodeCompilerScreen(step: StepData) {
+    var codeInput by remember { mutableStateOf("@file:JvmName(\"JDoodle\")\n" +
+            "fun main() {\n" +
+            "  val x: Int = 10\n" +
+            "  val y: Int = 25\n" +
+            "  val z = x + y\n" +
+            "  println(\"The sum of \$x + \$y is  \$z\")\n" +
+            "}") }
+    var codeOutput by remember { mutableStateOf("") }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(text = step.content, style = MaterialTheme.typography.h6)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        BasicTextField(
+            value = codeInput,
+            onValueChange = { codeInput = it },
+            modifier = Modifier
+                .background(Color.White)
+                .padding(16.dp)
+                .fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = { compileCode(codeInput) { result -> codeOutput = result } }) {
+            Text("Выполнить код")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = codeOutput, style = MaterialTheme.typography.body1)
+    }
+}
+
+fun compileCode(code: String, onResult: (String) -> Unit) {
+    val retrofitService = RetrofitInstance.getJDoodleRetrofitInstance().create(CompilerApiService::class.java)
+    val call = retrofitService.executeCode(
+        CompileRequest(
+            script = code,
+            clientId = "b12e39882fadad6de88f43f7e4d9db04",
+            clientSecret = "94ca8cae70bfb1548d493861c3582bfb4399930b5575914bc4627340640d54cd"
+        )
+    )
+
+    call.enqueue(object : Callback<CompileResponse> {
+        override fun onResponse(call: Call<CompileResponse>, response: Response<CompileResponse>) {
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    onResult(it.output)
+                }
+            } else {
+                onResult("Ошибка выполнения кода")
+            }
+        }
+
+        override fun onFailure(call: Call<CompileResponse>, t: Throwable) {
+            onResult("Ошибка выполнения кода: ${t.message}")
+        }
+    })
 }
 
 private fun loadPdfFromAssets(context: Context, fileName: String): PdfRenderer? {
